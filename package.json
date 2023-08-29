@@ -1,0 +1,46 @@
+{
+  "name": "neurobica-io-multipayer-server",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "v..": "npm version patch --no-git-tag-version",
+    "v.": "npm version minor --no-git-tag-version",
+    "v": "npm version major --no-git-tag-version",
+    "clean:all": "rm -rf node_modules build package-lock.json",
+    "clean:prod": "rm -rf node_modules package-lock.json",
+    "update": "npm run npmconf && npx npm-check-updates -u && npm i",
+    "update:prod": "npx npm-check-updates -u && npm i",
+    "build": "npx ts-node build.ts",
+    "start": "npm run udev",
+    "npmconf": "rm -f .npmrc && aws codeartifact login --tool npm --repository failean --domain failean --domain-owner 988253048728 --region us-east-1 && npm config set registry https://registry.npmjs.org/ && npm config set @failean:registry https://failean-988253048728.d.codeartifact.us-east-1.amazonaws.com/npm/failean/",
+    "prod": "npm run update:prod && npm run build",
+    "docker": "VERSION=$(node -p \"require('./package.json').version\") && CODEARTIFACT_TOKEN=$(aws codeartifact get-authorization-token --domain failean --domain-owner 988253048728 --query authorizationToken --output text) && docker build --build-arg CODEARTIFACT_TOKEN=$CODEARTIFACT_TOKEN -t 988253048728.dkr.ecr.us-east-1.amazonaws.com/mainserver:$VERSION .",
+    "dev:fullclean": "npm run clean:all && npm run dev:fullfast",
+    "dev:fullfast": "npm run update && npm run dev:fast",
+    "dev:fast": "nodemon",
+    "dev": "npm run dev:fast",
+    "udev": "npm run dev:fullfast",
+    "lint": "eslint . --ext .ts"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "src"
+    ],
+    "ext": "ts, html",
+    "ignore": [
+      "src/public"
+    ],
+    "exec": "./node_modules/.bin/ts-node ./src"
+  },
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17"}
+}
