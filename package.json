@@ -38,9 +38,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "express": "^4.18.2",
+    "http": "^0.0.1-security",
     "socket.io": "^4.7.2"
   },
   "devDependencies": {
-    "@types/express": "^4.17.17"}
+    "@types/node": "^20.5.7",
+    "@types/socket.io": "^3.0.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
 }
