@@ -10,7 +10,7 @@
     "clean:prod": "rm -rf node_modules package-lock.json",
     "update": "npm run npmconf && npx npm-check-updates -u && npm i",
     "update:prod": "npx npm-check-updates -u && npm i",
-    "build": "npx ts-node build.ts",
+    "build": "tsc",
     "start": "npm run udev",
     "npmconf": "rm -f .npmrc && aws codeartifact login --tool npm --repository failean --domain failean --domain-owner 988253048728 --region us-east-1 && npm config set registry https://registry.npmjs.org/ && npm config set @failean:registry https://failean-988253048728.d.codeartifact.us-east-1.amazonaws.com/npm/failean/",
     "prod": "npm run update:prod && npm run build",
@@ -38,13 +38,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "http": "^0.0.1-security",
-    "socket.io": "^4.7.2"
-  },
-  "devDependencies": {
-    "@types/node": "^20.5.7",
-    "@types/socket.io": "^3.0.2",
-    "ts-node": "^10.9.1",
+    "socket.io": "^4.7.2",
     "typescript": "^5.2.2"
   }
 }
