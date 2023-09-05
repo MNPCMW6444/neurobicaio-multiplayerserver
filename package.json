@@ -8,11 +8,10 @@
     "v": "npm version major --no-git-tag-version",
     "clean:all": "rm -rf node_modules build package-lock.json",
     "clean:prod": "rm -rf node_modules package-lock.json",
-    "update": "npm run npmconf && npx npm-check-updates -u && npm i",
+    "update": "npx npm-check-updates -u && npm i",
     "update:prod": "npx npm-check-updates -u && npm i",
     "build": "tsc",
     "start": "npm run udev",
-    "npmconf": "rm -f .npmrc && aws codeartifact login --tool npm --repository failean --domain failean --domain-owner 988253048728 --region us-east-1 && npm config set registry https://registry.npmjs.org/ && npm config set @failean:registry https://failean-988253048728.d.codeartifact.us-east-1.amazonaws.com/npm/failean/",
     "prod": "npm run update:prod && npm run build",
     "docker": "VERSION=$(node -p \"require('./package.json').version\") && CODEARTIFACT_TOKEN=$(aws codeartifact get-authorization-token --domain failean --domain-owner 988253048728 --query authorizationToken --output text) && docker build --build-arg CODEARTIFACT_TOKEN=$CODEARTIFACT_TOKEN -t 988253048728.dkr.ecr.us-east-1.amazonaws.com/mainserver:$VERSION .",
     "dev:fullclean": "npm run clean:all && npm run dev:fullfast",
@@ -40,5 +39,8 @@
   "dependencies": {
     "socket.io": "^4.7.2",
     "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1"
   }
 }
