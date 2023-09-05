@@ -1,53 +1,51 @@
-import { createServer } from "http";
-import { Server } from "socket.io";
+import {createServer} from "http";
+import {Server} from "socket.io";
 
 interface Player {
-  id: string;
-  x: number;
-  y: number;
+    email: string;
 }
 
-interface GameState {
-  players: Player[];
+interface StateType {
+    games: {
+        id: number;
+        players: Player[]
+    }[];
 }
 
 const httpServer = createServer();
 const io = new Server(httpServer, {
-  cors: {
-    origin: ["https://mnpcmwtest.bubbleapps.io"],
-    methods: ["GET", "POST"],
-  },
+    cors: {
+        origin: ["https://mnpcmwtest.bubbleapps.io", "https://michael-86602.bubbleapps.io"],
+        methods: ["GET", "POST"],
+    },
 });
 
-let gameState: GameState = {
-  players: [],
+let state: StateType = {
+    games: [],
 };
 
-io.on("connection", (socket) => {
-  // Assign a new ID for the connected player and add to game state
-  const newPlayer: Player = { id: socket.id, x: 0, y: 0 };
-  gameState.players.push(newPlayer);
+io.on('connection', (socket) => {
+    socket.on("createGame", (email: string) => {
+        let randomGameNumber = Math.floor(Math.random() * 1000000)
+        while (state.games.find(({id}) => id == randomGameNumber))
+            randomGameNumber = Math.floor(Math.random() * 1000000)
+        state.games.push({
+            id: randomGameNumber, players: [{email}]
+        });
+        socket.emit("gameCreated", randomGameNumber);
+    });
+    socket.on("joinGame", ({email, wantedGame}: { email: string, wantedGame: number }) => {
+        const gameIndex = state.games.findIndex(({id}) => id === wantedGame);
+        if (gameIndex !== -1) {
+            state.games[gameIndex].players.push({email})
+            socket.emit("gameAnswer", true);
+        } else socket.emit("gameAnswer", false);
+        ;
 
-  // Notify existing clients of the new player
-  socket.broadcast.emit("new-player", newPlayer);
-
-  // On receiving a move event, update game state and broadcast to all clients
-  socket.on("move", (moveData) => {
-    const player = gameState.players.find((p) => p.id === socket.id);
-    if (player) {
-      player.x += moveData.dx;
-      player.y += moveData.dy;
-      io.emit("game-update", gameState);
-    }
-  });
-
-  // On disconnect, remove the player from the game state
-  socket.on("disconnect", () => {
-    gameState.players = gameState.players.filter((p) => p.id !== socket.id);
-    io.emit("player-left", socket.id);
-  });
+    });
 });
 
+
 httpServer.listen(3000, () => {
-  console.log("Server is running on port 3000");
+    console.log("Server is running on port 3000");
 });
