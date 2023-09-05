@@ -40,8 +40,6 @@ io.on('connection', (socket) => {
             state.games[gameIndex].players.push({email})
             socket.emit("gameAnswer", true);
         } else socket.emit("gameAnswer", false);
-        ;
-
     });
 });
 
