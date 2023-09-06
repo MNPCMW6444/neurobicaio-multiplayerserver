@@ -3,12 +3,14 @@ import {Server} from "socket.io";
 
 interface Player {
     email: string;
+    score: number;
 }
 
-interface StateType {
-    games: {
+interface GameState {
+    rooms: {
         id: number;
         players: Player[]
+        fightsOn: boolean;
     }[];
 }
 
@@ -20,26 +22,33 @@ const io = new Server(httpServer, {
     },
 });
 
-let state: StateType = {
-    games: [],
+let state: GameState = {
+    rooms: [],
 };
 
 io.on('connection', (socket) => {
     socket.on("createGame", (email: string) => {
         let randomGameNumber = Math.floor(Math.random() * 1000000)
-        while (state.games.find(({id}) => id == randomGameNumber))
+        while (state.rooms.find(({id}) => id == randomGameNumber))
             randomGameNumber = Math.floor(Math.random() * 1000000)
-        state.games.push({
-            id: randomGameNumber, players: [{email}]
+        state.rooms.push({
+            id: randomGameNumber, players: [{email, score: NaN}], fightsOn: false
         });
         socket.emit("gameCreated", randomGameNumber);
     });
     socket.on("joinGame", ({email, wantedGame}: { email: string, wantedGame: number }) => {
-        const gameIndex = state.games.findIndex(({id}) => id === wantedGame);
+        const gameIndex = state.rooms.findIndex(({id}) => id === wantedGame);
         if (gameIndex !== -1) {
-            state.games[gameIndex].players.push({email})
-            socket.emit("gameAnswer", true);
-        } else socket.emit("gameAnswer", false);
+            state.rooms[gameIndex].players.push({email, score: NaN})
+            socket.emit("answer", true);
+        } else socket.emit("answer", false);
+    });
+    socket.on("fightsOn", (gameNum) => {
+        const gameIndex = state.rooms.findIndex(({id}) => id === gameNum);
+        if (state.rooms[gameIndex].players.length % 2 === 0) {
+            state.rooms[gameIndex].fightsOn = true;
+            socket.emit("answer", true)
+        } else socket.emit("answer", false);
     });
 });
 
